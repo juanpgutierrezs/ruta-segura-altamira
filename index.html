@@ -1,132 +1,647 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f7fb">
-  <title>Especificaciones del módulo ESP32</title>
-  <link rel="stylesheet" href="styles.css?v=20261015-esp32-article-1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruta Segura Altamira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{
+  --navy:#12305a; --navy2:#1c4680; --ink:#1d2433; --muted:#5d6779; --line:#e3e7ee; --bg:#f4f6fa; --card:#fff;
+  --red:#d63b3b; --redbg:#fde8e8; --amber:#e9a100; --amberbg:#fff4d6; --green:#1f9d55; --greenbg:#e2f6ea;
+  --accent:#ff7a1a; --blue:#2f6fde; --bluebg:#e7efff; --r:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Nunito Sans",system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
+button,select,input,textarea{font:inherit}
+header{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;padding:14px 20px 0}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1180px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;letter-spacing:.2px}
+.logo .lights{display:flex;flex-direction:column;gap:2px;background:#0b1d38;padding:4px 5px;border-radius:7px}
+.logo .lights i{width:9px;height:9px;border-radius:50%;display:block}
+.logo small{display:block;font-weight:600;font-size:12px;opacity:.75;letter-spacing:.3px}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px}
+.who select{background:#ffffff1a;color:#fff;border:1px solid #ffffff40;border-radius:9px;padding:6px 8px}
+.who select option{color:var(--ink)}
+.mypts{background:var(--accent);color:#fff;font-weight:800;border-radius:999px;padding:5px 12px;white-space:nowrap}
+nav{max-width:1180px;margin:12px auto 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{color:#ffffffc8;text-decoration:none;padding:10px 13px;border-radius:10px 10px 0 0;font-weight:700;font-size:14px;white-space:nowrap}
+nav a:hover{color:#fff;background:#ffffff14}
+nav a.on{background:var(--bg);color:var(--navy)}
+main{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+h1{font-size:26px;margin:0 0 4px;font-weight:900;color:var(--navy)}
+h2{font-size:18px;margin:0 0 12px;font-weight:800;color:var(--navy)}
+h3{font-size:15px;margin:0 0 6px;font-weight:800}
+.sub{color:var(--muted);margin:0 0 18px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g5{grid-template-columns:repeat(auto-fit,minmax(175px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.banner{background:linear-gradient(120deg,#fff,#fff7ef);border:1px solid #ffd9b8;border-radius:var(--r);padding:18px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.banner b{color:var(--accent)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800}
+.p-red{background:var(--redbg);color:var(--red)} .p-amber{background:var(--amberbg);color:#9a6a00} .p-green{background:var(--greenbg);color:var(--green)}
+.p-blue{background:var(--bluebg);color:var(--blue)} .p-gray{background:#eef0f4;color:var(--muted)} .p-or{background:#ffeedd;color:#c25400}
+.kpi .v{font-size:28px;font-weight:900;color:var(--navy);line-height:1.1}
+.kpi .l{font-size:13px;color:var(--muted);font-weight:700}
+.kpi .m{font-size:12px;margin-top:6px}
+.bar{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--blue)}
+.ok{color:var(--green);font-weight:800} .warn{color:#b07800;font-weight:800}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--navy);color:#fff}
+.btn:hover{filter:brightness(1.1)}
+.btn.or{background:var(--accent)} .btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)} .btn.sm{padding:6px 11px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.me td{background:#fff7ef}
+.pos{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:#9aa3b2}
+.pos.m1{background:#e0a800}.pos.m2{background:#8f9bab}
+label{font-weight:700;font-size:13px;display:block;margin:12px 0 5px}
+select.f,input.f,textarea.f{width:100%;border:1px solid #cfd6e1;border-radius:10px;padding:10px;background:#fff}
+textarea.f{min-height:80px;resize:vertical}
+.types{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.type{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;background:#fff}
+.type.on{border-color:var(--accent);background:#fff7ef}
+.type small{display:block;color:var(--muted);font-size:12px}
+.type b.pt{color:var(--accent);font-size:16px;white-space:nowrap}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-top:8px;background:#fff}
+.check input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+.crit{border-color:#f3b9b9;background:#fff6f6}
+.steps{display:flex;gap:4px;margin:8px 0}
+.steps span{flex:1;font-size:11px;font-weight:800;text-align:center;padding:5px 2px;border-radius:6px;background:#eef0f4;color:#8a93a3}
+.steps span.done{background:var(--greenbg);color:var(--green)}
+.steps span.cur{background:var(--bluebg);color:var(--blue)}
+.rep{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;margin-bottom:10px}
+.rep .meta{font-size:12px;color:var(--muted)}
+.resp{background:#f3f7ff;border-left:3px solid var(--blue);padding:8px 10px;border-radius:6px;font-size:13px;margin-top:8px}
+.mapwrap{display:grid;grid-template-columns:1fr 340px;gap:16px}
+@media (max-width:900px){.mapwrap{grid-template-columns:1fr}}
+svg.map{width:100%;height:auto;background:#fbfcfe;border-radius:12px;border:1px solid var(--line)}
+.dot{cursor:pointer}
+.dot:hover circle.c{stroke-width:4}
+@keyframes pulse{0%{r:13;opacity:.55}100%{r:24;opacity:0}}
+.pulse{animation:pulse 1.6s ease-out infinite}
+.crow{display:flex;justify-content:space-between;font-size:13px;margin-top:6px}
+.cbar{display:flex;gap:3px;margin-top:3px}.cbar i{flex:1;height:7px;border-radius:3px;background:#e8ebf1}
+.legend{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.lg{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:10px 12px}
+.lg .sw{width:16px;height:16px;border-radius:50%;flex:none;margin-top:2px}
+.prize{text-align:center;padding:22px 16px}
+.prize .ico{font-size:40px}
+.prize .lvl{font-weight:900;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.prize h3{font-size:18px;margin:6px 0}
+.wall{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.note{background:#fffbe6;border:1px solid #f2e2a2;border-radius:12px;padding:14px;position:relative}
+.note .by{font-size:12px;font-weight:800;color:#8a6d00;margin-top:8px}
+.qrgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.qrc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;font-size:12px}
+.qrc .q svg{width:120px;height:120px}
+.qrc .bandc{height:6px;border-radius:4px;margin-bottom:8px}
+.toast{opacity:0;position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;box-shadow:0 10px 30px #0003;transition:.3s;z-index:50;max-width:92vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.cycle{display:flex;gap:6px;align-items:center;font-size:13px;color:#ffffffd0}
+.login{max-width:960px;margin:30px auto;display:grid;grid-template-columns:1.1fr 1fr;gap:18px}
+@media (max-width:820px){.login{grid-template-columns:1fr}}
+.login .hero{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(140deg,var(--navy),var(--navy2));color:#fff;border-radius:var(--r);padding:28px}
+.login .hero h1{color:#fff;font-size:28px}
+.login .hero li{margin:8px 0}
+.err{color:var(--red);font-weight:700;font-size:13px;min-height:18px;margin-top:8px}
+.demo{background:#f6f8fc;border:1px dashed #c4cddb;border-radius:12px;padding:12px;margin-top:16px;font-size:13px}
+.demo button{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 6px 0 0;cursor:pointer;font-weight:700;font-size:12px}
+.userchip{display:flex;align-items:center;gap:8px;background:#ffffff1a;border:1px solid #ffffff30;border-radius:999px;padding:4px 6px 4px 12px}
+.userchip button{background:#ffffff26;color:#fff;border:0;border-radius:999px;padding:4px 10px;cursor:pointer;font-weight:700;font-size:12px}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:30px}
+.lvlrow td:first-child{font-weight:800}
+.hint{font-size:12px;color:var(--muted)}
+.flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.right{margin-left:auto}
+.badge{display:inline-block;background:var(--greenbg);color:var(--green);font-weight:800;font-size:11px;padding:2px 8px;border-radius:99px}
+</style>
 </head>
 <body>
-  <main class="page">
+<header>
+  <div class="top">
+    <div class="logo"><span class="lights"><i style="background:#ff5a5a"></i><i style="background:#ffc233"></i><i style="background:#3ccf7a"></i></span>
+      <div>Ruta Segura Altamira<small>Colegio Altamira School · Cultura preventiva SST</small></div></div>
+    <div class="who">
+      <span class="cycle">Trimestre 1 · Reto 01 de 3</span>
+      <span class="userchip" id="userChip"></span>
+      <span class="mypts" id="myPts">0 pts</span>
+    </div>
+  </div>
+  <nav id="nav"></nav>
+</header>
+<main id="view"></main>
+<div class="toast" id="toast"></div>
 
-    <article class="reference-article">
-      <h1 class="article-title">▷ Especificaciones del módulo ESP32</h1>
-      <div class="article-content">
-        <h2>⭐⭐⭐⭐⭐ Especificaciones del módulo #ESP32</h2>
-    
-        <h3>✅ Módulo ESP32 (ESP-WROOM-32)</h3>
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrW_XK8NA6iEWP04ahhA3hUbB9TkLdeRnECh-9sQHLkG0m5_FIogpinEXzy9AD0lwb3kS6KKQIx3SEpUq33jvhHRGgqhAS2hvE47NJgvAsTMLHs5BDUgq4vgFCMkSex_cxhcRRCFbSd4k/w640-h318/ESP32.jpg" alt="Módulo ESP32 ESP-WROOM-32" loading="lazy">
-    
-        <h3>✅ Módulo ESP32 (HUZZAH32)</h3>
-        <p>El #HUZZAH32 es módulo de desarrollo basado en #ESP32, hecha con el módulo oficial WROOM32. Este hardware contiene: convertidor USB a serie incorporado, reinicio automático del cargador de arranque, cargador de iones de litio / polímero, y casi todos los GPIO que sacaste para que puedas usarlo con cualquiera de nuestras alas de plumas.</p>
-        <div class="article-images two">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiH6Vmqr9wYuYc129FycoqFmH_3OAqGs14XhH0vjyPGd8j-zIvUb_lpY_wW_IqLGIYN76wLUNQb9mPhCpYz9LLO8SzPhyphenhyphenmVOSNlI7pxm8rgERG6wL8JbmlmBoZ2bryx7JUurouQSP3OseE/s320/esp.gif" alt="Módulo HUZZAH32" loading="lazy">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgun0JUNImPnN02ijxPJzOqctl2WqVC4j2IQ3Yre4ndOe1u9Moox1bn3uEvvQjkbTO3bqOQqTohhvA6m0Cim7LZ4M_VHOhCuMDCD-Yuh9TxriCaFtlo6G_LmVSfci1MibtWppPw0ZG9iq8/s320/Esquematico.png" alt="Esquemático ESP32" loading="lazy">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhINXpF4guTLKY3RDqYCu3DUNsXpKMOBVgqVncUlYdfYf2Cmq5BM5GF9ujSUIcoGtIy8VcEQavYxi0LPq2ugibHz94YsEG8b0k2HllKsgb1bQzhBrcPwfQWR3l4svFpbKsg5MJDESriai8/s320/PCB.png" alt="PCB ESP32" loading="lazy">
-        </div>
-    
-        <p>El ESP32 es una actualización perfecta del ESP8266 que ha sido tan popular. En comparación, el ESP32 tiene mucho más GPIO, muchas entradas analógicas, dos salidas analógicas, múltiples periféricos adicionales (como un UART de repuesto), dos núcleos para que no tenga que ceder ante el administrador de WiFi, procesador de mayor velocidad, ¡etcétera etcétera! Creemos que a medida que el ESP32 obtenga tracción, veremos a más personas moverse a este chip exclusivamente, ya que tiene todas las funciones.</p>
-    
-        <h3><a href="https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/overview" target="_blank" rel="noopener noreferrer">Overview</a></h3>
-        <ul>
-          <li>240 MHz dual core Tensilica LX6 microcontroller with 600 DMIPS</li>
-          <li>Integrated 520 KB SRAM</li>
-          <li>Integrated 802.11b/g/n HT40 Wi-Fi transceiver, baseband, stack and LWIP</li>
-          <li>Integrated dual mode Bluetooth (classic and BLE)</li>
-          <li>4 MByte flash include in the WROOM32 module</li>
-          <li>On-board PCB antenna</li>
-          <li>Ultra-low noise analog amplifier</li>
-          <li>Hall sensor</li>
-          <li>10x capacitive touch interface</li>
-          <li>32 kHz crystal oscillator</li>
-          <li>3 x UARTs (only two are configured by default in the Feather Arduino IDE support, one UART is used for bootloading/debug)</li>
-          <li>3 x SPI (only one is configured by default in the Feather Arduino IDE support)</li>
-          <li>2 x I2C (only one is configured by default in the Feather Arduino IDE support)</li>
-          <li>12 x ADC input channels</li>
-          <li>2 x I2S Audio</li>
-          <li>2 x DAC</li>
-          <li>PWM/timer input/output available on every GPIO pin</li>
-          <li>OpenOCD debug interface with 32 kB TRAX buffer</li>
-          <li>SDIO master/slave 50 MHz</li>
-          <li>SD-card interface support</li>
-        </ul>
-        <div class="article-images two">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiRX_xViB5rKLV2N4H9ZBEnOmN0CJM-1pnb_f5fRu8cSKK_uUNQWZ1Zz03_dl2T5OoGBINshKkv0-1SKr3tUca88dFqoy7qGYvh9pQlL7cXmIoh8c50-JAbeQNZIbYEf-ThyqAKeQT7bhY/w320-h320/espv2.jpeg" alt="Vista del ESP32" loading="lazy">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj6b3M1XYK7idRywi0U1hsiXdSk2Fj6nTkIK_EOSg68DGoe7dLk9ZOdGiNWVOKtz7r0v6NpKfmuKPMJkiPi53k0_rDhdwrswHpHS-ZKxTqVODcdLpFe7JnFHbc_764fAS_A9rKdlR7Yq6s/s320/esp_arduino_ide.jpeg" alt="ESP32 en Arduino IDE" loading="lazy">
-        </div>
-    
-        <h3><a href="https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/pinouts" target="_blank" rel="noopener noreferrer">Pinouts</a></h3>
-        <p>Una de las mejores cosas del ESP32 es que tiene mucho más GPIO que el ESP8266.</p>
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhq6hltPol6KZboyoCeim4An223jAg6hlHQw7OqLPEsn9k2OqC3A0n-13DJUxSdIGy54Qv9GdXxWUCsm3X9IUiRYgQz-DIooaS_Aq6nyCQgPCGQcbYV6uvQ_y55gVYBsal8Y44AL4bpmnI/s320/inout.jpg" alt="Entradas y salidas del ESP32" loading="lazy">
-    
-        <h3><a href="https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/assembly" target="_blank" rel="noopener noreferrer">Assembly</a></h3>
-        <p>Para soldar los espadines, cortar la tira a la longitud exacta del módulo ESP32 (si es necesario). Será más fácil soldarlo si lo inserta en una placa de pruebas: alfileres largos hacia abajo. Luego, coloque el módulo ESP32 sobre los espadines de modo que los pasadores cortos pasen a través de las orificios en la PCB. Finalmente, asegúrese de soldar todos los pines para un contacto eléctrico confiable.</p>
-        <div class="article-images two">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEisuWXQg3_UwTR_bOK5fD2nGQC5PwoJKReEe5n9q3f71GraREVPOXYYxZKMD2cDh0V_h05n7caef4y-LCpSqKEX7QmbvZfp9Ve79mjffEUOKwsT5MTb1RSsKSZ7f_n3lMyjGZfegmronf0/s320/espadines1.jpg" alt="Montaje de espadines ESP32" loading="lazy">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqY_E1KamlbZwcpDUmKcdRtRyCbpWS5ZAqoZeC2OzQYey5MK-RNzTDfvzVmCZGX5pbgvb7x0bn0o73OPvbNZPUG3Cvm_gGie_tApUHhgtKv09YpHdSK-uHciiQhBiJRuo0VN8eK2NsEY0/s320/espadines2.jpg" alt="Montaje de espadines ESP32" loading="lazy">
-        </div>
-    
-        <h3><a href="https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/power-management" target="_blank" rel="noopener noreferrer">Power Management</a></h3>
-        <p>Hay dos formas de alimentar este módulo. Puede conectarse con un cable Micro USB (solo conéctelo al conector) y el Feather regulará el USB de 5V a 3.3V. También puede conectar una batería de polímero de litio de 4.2 / 3.7V (Lipo / Lipoly) o de iones de litio (LiIon) a la toma JST. Esto permitirá que el Feather funcione con una batería recargable. Cuando se alimenta la alimentación USB, cambiará automáticamente a USB para alimentación, y comenzará a cargar la batería (si está conectada) a 200 mA. Esto sucede al estilo de 'intercambio en caliente' para que siempre pueda mantener el LiPoly conectado como una energía de 'respaldo' que solo se usará cuando se pierda la alimentación del USB.</p>
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCVFASGzCpKS-mCTdsWo3SwkyAWHIE1jSh1geAn1gjHlE24AOl9XbbvZZiRdcCg5VUlPR1Cdp1t7dE-7fzRHlHxrHxO5RfO0ZZZcrY-NrbmoFKSqlleM9uatJ0btRKoRfPTm1ubFb2IpM/s320/power.jpg" alt="Gestión de energía del ESP32" loading="lazy">
-    
-        <h3><a href="https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/using-with-arduino-ide" target="_blank" rel="noopener noreferrer">Using with Arduino IDE</a></h3>
-        <p>Recomendamos principalmente usar el ESP32 Feather con Arduino.</p>
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhNQKuGd2oTq7-DZ44Gu80sJq5mXQV_jbtazQOs0itajwuQGm8BJtowmb8349kI9hzEwEQ9j77Q791zwzzfRZHSCGkqbZd4O7IrTqRQ5834tz4hhz9GT0zpX9ZWc6Fzya_19HJC0Z6XRuM/s320/ArduinoIDE.png" alt="Arduino IDE" loading="lazy">
-    
-        <h3><a href="https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/downloads" target="_blank" rel="noopener noreferrer">Downloads</a></h3>
-        <ul>
-          <li><a href="https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf" target="_blank" rel="noopener noreferrer">ESP32 WROOM32 Hoja de datos</a></li>
-          <li><a href="https://espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf" target="_blank" rel="noopener noreferrer">Manual técnico ESP32</a></li>
-          <li><a href="https://www.esp32.com/" target="_blank" rel="noopener noreferrer">¡No te olvides de visitar esp32.com para conocer las últimas novedades, software y chismes de ESP32!</a></li>
-          <li><a href="https://github.com/adafruit/Adafruit-HUZZAH32-ESP32-Feather-PCB" target="_blank" rel="noopener noreferrer">Archivos EagleCAD PCB en github</a></li>
-          <li><a href="https://github.com/adafruit/Fritzing-Library" target="_blank" rel="noopener noreferrer">Fritzing object en la biblioteca Adafruit Fritzing</a></li>
-          <li><a href="https://github.com/adafruit/Adafruit_CAD_Parts/tree/master/3405%20ESP32%20Feather%20HUZZAH" target="_blank" rel="noopener noreferrer">Modelos 3D en GitHub</a></li>
-          <li><a href="https://cdn-learn.adafruit.com/downloads/pdf/adafruit-huzzah32-esp32-feather.pdf?timestamp=1587572668" target="_blank" rel="noopener noreferrer">PDF</a></li>
-        </ul>
+<script>
+/* ===================== DATOS BASE ===================== */
+const ART_URL = "https://claude.ai/artifact/5HpD3wFAFSL6q5M4oKsEKx";
+// En un hosting propio, los QR usan automáticamente la dirección de esa página.
+const BASE_URL = (location.protocol==="https:"&&!/claude|anthropic|usercontent/i.test(location.hostname))
+  ? location.origin+location.pathname : ART_URL; // link público del prototipo (para los QR)
+const ROUTES = [
+  ["inicio","Inicio"],["reto","Reto actual"],["reportar","Reportar"],["mapa","Semáforo"],
+  ["seguimiento","Seguimiento"],["puntos","Puntos"],["ranking","Ranking"],["recompensas","Recompensas"],
+  ["mejoras","Muro de mejoras"],["qr","Accesos QR"]
+];
+const TYPES = [
+  {id:"cond", name:"Condición insegura", pts:2, lvl:"Participación", d:"Peldaño roto, pasamanos flojo, cable en el piso"},
+  {id:"sup", name:"Superficie peligrosa", pts:3, lvl:"Participación", d:"Piso mojado, desnivel, superficie resbalosa"},
+  {id:"caida", name:"Caída o casi-caída propia", pts:3, lvl:"Aprendizaje", d:"Reportar no tiene castigo: nos ayuda a aprender"},
+  {id:"obs", name:"Situación de riesgo observada", pts:5, lvl:"Cuidado colectivo", d:"Sin nombres. Ej.: bajar con celular o con carga"},
+  {id:"mej", name:"Propuesta de mejora", pts:7, lvl:"Contribución", d:"Tu idea puede cambiar el estándar del colegio"}
+];
+const STATUS = ["Recibido","En revisión","En corrección","Cerrado"];
+const COLOR = {
+  rojo:{n:"Rojo",zone:"Escaleras",c:"var(--red)",bg:"var(--redbg)",hex:"#d63b3b",cls:"p-red",risk:"Riesgo alto · caída a distinto nivel",
+    msg:"La prisa puede hacerte llegar rápido… pero también hacerte caer.",
+    doc:"Pausa. Usa el pasamanos. Sin carga ni celular.", col:"Toda condición reportada se corrige con prioridad, en máximo 30 días.",
+    floor:"Cinta antideslizante roja en el borde de cada escalón."},
+  amarillo:{n:"Amarillo",zone:"Rampas",c:"var(--amber)",bg:"var(--amberbg)",hex:"#e9a100",cls:"p-amber",risk:"Riesgo medio",
+    msg:"No tienes que llegar primero. Tienes que llegar seguro.",
+    doc:"Precaución y manos libres.", col:"Mejora programada y seguimiento.",
+    floor:"Franjas transversales amarillas cada 1,5 m."},
+  verde:{n:"Verde",zone:"Pasillos",c:"var(--green)",bg:"var(--greenbg)",hex:"#1f9d55",cls:"p-green",risk:"Riesgo bajo · caída a nivel",
+    msg:"Avanza, pero sin prisa.",
+    doc:"Avanza, pero sin prisa.", col:"Mantenimiento y monitoreo.",
+    floor:"Sin cinta: placa suspendida y placa QR."}
+};
+const hid = id => id.replace("-","").toLowerCase();
+
+const POINTS0 = [
+  {id:"E-01",z:"rojo",name:"Escalera principal Bloque B",x:452,y:150},
+  {id:"E-02",z:"rojo",name:"Escalera de emergencia Bloque B",x:610,y:104},
+  {id:"E-03",z:"rojo",name:"Escalera Bloque C (laboratorios)",x:742,y:170},
+  {id:"E-04",z:"rojo",name:"Escalones patio – coliseo",x:560,y:330},
+  {id:"E-05",z:"rojo",name:"Graderías del coliseo",x:680,y:420},
+  {id:"R-01",z:"amarillo",name:"Rampa Bloque A",x:150,y:192},
+  {id:"R-02",z:"amarillo",name:"Rampa de acceso a cafetería",x:258,y:378},
+  {id:"R-03",z:"amarillo",name:"Rampa sala de profesores",x:372,y:262},
+  {id:"R-04",z:"amarillo",name:"Rampa acceso administración",x:110,y:440},
+  {id:"P-01",z:"verde",name:"Corredor Bloque A",x:96,y:120},
+  {id:"P-02",z:"verde",name:"Pasillo de laboratorios",x:690,y:226},
+  {id:"P-03",z:"verde",name:"Patio central",x:420,y:352},
+  {id:"P-04",z:"verde",name:"Corredor Bloque B (baños)",x:520,y:216},
+  {id:"P-05",z:"verde",name:"Biblioteca",x:300,y:120},
+  {id:"P-06",z:"verde",name:"Parqueadero docentes",x:70,y:352}
+];
+
+const PEOPLE0 = {
+  mat:[["Jorge Martínez",24],["Sandra Ortiz",19],["Felipe Rojas",15]],
+  cie:[["Luis Fernández",22],["Paola Herrera",18]],
+  hum:[["Camila Torres",17]], ing:[["Diana Castro",14]], art:[["Andrés Gil",12]], pri:[["Rosa Méndez",20]]
+};
+const nkey = n => n.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
+function seedPeople(){const o={};for(const a in PEOPLE0){o[a]={};PEOPLE0[a].forEach(([n,p])=>o[a][nkey(n)]={name:n,pts:p});}return o;}
+const AREAS0 = [
+  {id:"mat",name:"Matemáticas",total:20,part:18,pts:295,closed:5},
+  {id:"cie",name:"Ciencias",total:22,part:17,pts:320,closed:6},
+  {id:"hum",name:"Humanidades",total:25,part:15,pts:300,closed:4},
+  {id:"ing",name:"Inglés",total:17,part:12,pts:202,closed:3},
+  {id:"art",name:"Artes y Ed. Física",total:15,part:13,pts:185,closed:4},
+  {id:"pri",name:"Primaria",total:30,part:23,pts:355,closed:7}
+];
+
+const REPORTS0 = [
+  {id:"R-001",name:"Jorge Martínez",type:"cond",point:"E-01",area:"mat",anon:false,desc:"Peldaño 4 desportillado en la escalera principal.",status:3,resp:"Peldaño reparado y cinta antideslizante instalada. Gracias por reportar.",days:3,mine:false},
+  {id:"R-002",name:"Paola Herrera",type:"sup",point:"P-02",area:"cie",anon:false,desc:"Piso mojado por limpieza justo en el cambio de clase.",status:2,resp:"Se ajusta el horario de limpieza y se instala señal portátil.",days:2,mine:false},
+  {id:"R-003",name:"Luis Fernández",type:"mej",point:"E-04",area:"cie",anon:false,desc:"Instalar pasamanos en los escalones del patio al coliseo.",status:3,resp:"Mejora aprobada e implementada. Autoría: Área de Ciencias.",days:4,mine:false},
+  {id:"R-004",type:"caida",point:"R-02",area:"pri",anon:true,desc:"Casi caída bajando la rampa con cuadernos en ambas manos.",status:1,resp:"SST revisa la pendiente y la superficie de la rampa.",days:1,mine:false},
+  {id:"R-005",type:"obs",point:"E-02",area:"hum",anon:true,desc:"Varias personas bajan usando el celular en la escalera de emergencia.",status:3,resp:"Señal roja «Manos libres, sin celular» instalada. Tema incluido en el Reto 02.",days:2,mine:false},
+  {id:"R-006",name:"Diana Castro",type:"cond",point:"E-03",area:"ing",anon:false,desc:"Cinta antideslizante despegada en dos escalones de la escalera de laboratorios.",status:0,resp:"",days:null,mine:false}
+];
+
+const MEJORAS0 = [
+  {t:"Pasamanos en los escalones patio – coliseo",by:"Área de Ciencias",fx:"Escalones patio – coliseo con pasamanos a ambos lados."},
+  {t:"Carrito para transportar material entre bloques",by:"Área de Primaria",fx:"Menos carga en escaleras y rampas."},
+  {t:"Limpieza de pisos fuera del cambio de clase",by:"Área de Matemáticas",fx:"Pasillo de laboratorios sin piso mojado en horas pico."},
+  {t:"Bandejas de entrega de cuadernos en cada bloque",by:"Área de Humanidades",fx:"Los docentes suben con las manos libres."}
+];
+
+/* ===================== CUENTAS POR ÁREA (demo) =====================
+   Cada área tiene un usuario y un PIN. SST los entrega al coordinador de área y los renueva cada trimestre.
+   No se usa el correo institucional: los estudiantes también lo tienen. */
+const ACCOUNTS = [
+  {code:"matematicas",pin:"4821",area:"mat"},
+  {code:"ciencias",pin:"3967",area:"cie"},
+  {code:"humanidades",pin:"5140",area:"hum"},
+  {code:"ingles",pin:"2753",area:"ing"},
+  {code:"artes",pin:"6308",area:"art"},
+  {code:"primaria",pin:"1592",area:"pri"}
+];
+const acc = code => ACCOUNTS.find(a=>a.code===code);
+let fails=0, lockUntil=0;
+
+/* ===================== ESTADO ===================== */
+const KEY="rutaSeguraAltamira_v7";
+function fresh(){return {me:null,area:"cie",users:{},
+  points:JSON.parse(JSON.stringify(POINTS0)),areas:JSON.parse(JSON.stringify(AREAS0)),
+  reports:JSON.parse(JSON.stringify(REPORTS0)),people:seedPeople(),mejoras:JSON.parse(JSON.stringify(MEJORAS0)),seq:7,blocked:{}};}
+let S; try{S=JSON.parse(localStorage.getItem(KEY))||fresh();}catch(e){S=fresh();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const $=s=>document.querySelector(s);
+const area=id=>S.areas.find(a=>a.id===id);
+function U(){if(!S.users)S.users={};return S.users[S.me]||(S.users[S.me]={joined:false,myPts:0,hist:[],reto:[false,false,false,false],retoDone:false});}
+const point=id=>S.points.find(p=>p.id===id);
+const typ=id=>TYPES.find(t=>t.id===id);
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),3200);}
+function addPts(n,why,name){
+  const a=area(S.area);
+  U().myPts+=n;a.pts+=n;U().hist.unshift({n,why:name?why+" · "+name:why});
+  if(name){S.people=S.people||seedPeople();const P=S.people[S.area]=S.people[S.area]||{},k=nkey(name);(P[k]=P[k]||{name,pts:0}).pts+=n;}
+  save();renderHeader();
+}
+function validName(n){return n.split(" ").length>=2&&n.length>=6&&!/\d/.test(n);}
+
+/* ===================== HEADER ===================== */
+function renderHeader(){
+  const who=document.querySelector(".who");
+  if(!S.me){who.style.display="none";$("#nav").innerHTML="";return;}
+  who.style.display="";
+  const u=acc(S.me);
+  $("#userChip").innerHTML=`👥 Área de ${area(u.area).name}<button id="logout">Salir</button>`;
+  $("#logout").onclick=()=>{S.me=null;save();toast("Sesión cerrada.");render();};
+  $("#myPts").textContent=U().myPts+" pts";
+  const r=current().base;
+  $("#nav").innerHTML=ROUTES.map(([h,n])=>`<a href="#${h}" class="${h===r?"on":""}">${n}</a>`).join("");
+}
+
+/* ===================== KPIs ===================== */
+function kpis(){
+  const tp=S.areas.reduce((a,x)=>a+x.part,0), tt=S.areas.reduce((a,x)=>a+x.total,0);
+  const R=S.reports, resp=R.filter(r=>r.days!==null&&r.days<=5).length, closed=R.filter(r=>r.status===3).length;
+  const RR=R.filter(r=>point(r.point).z==="rojo"), RRc=RR.filter(r=>r.status===3).length;
+  return [
+    {l:"Participación en la plataforma",v:pct(tp,tt),m:70,u:"%",f:`${tp} de ${tt} docentes`},
+    {l:"Reportes con respuesta ≤ 5 días",v:pct(resp,R.length),m:90,u:"%",f:`${resp} de ${R.length} reportes`},
+    {l:"Cierre de condiciones inseguras",v:pct(closed,R.length),m:80,u:"%",f:`${closed} de ${R.length} cerrados`},
+    {l:"Cierre de reportes en zonas rojas",v:pct(RRc,RR.length),m:90,u:"%",f:`${RRc} de ${RR.length} reportes en escaleras`},
+    {l:"Cobertura del semáforo",v:100,m:100,u:"%",f:`${S.points.length} de ${S.points.length} puntos señalizados`}
+  ];
+}
+
+/* ===================== VISTAS ===================== */
+function vInicio(){
+  const k=kpis(), counts={rojo:0,amarillo:0,verde:0};
+  S.points.forEach(p=>counts[p.z]++);
+  const a=area(S.area);
+  return `
+  <h1>Hola, área de ${area(acc(S.me).area).name}</h1>
+  <p class="sub">Tu ruta diaria también es tu responsabilidad. Aquí reportas, propones y ves cómo el colegio responde.</p>
+  <div class="banner">
+    <div style="font-size:34px">🛡️</div>
+    <div style="flex:1;min-width:240px"><h3 style="margin:0">Aquí se premia <b>prevenir y reportar</b>, no esconder.</h3>
+    <div class="hint">Los reportes no buscan culpables. Puedes reservar tu nombre: solo SST lo ve. Reportar una caída o casi-caída suma puntos y nunca se castiga.</div></div>
+    <a class="btn or" href="#reportar" style="text-decoration:none">Reportar ahora</a>
+  </div>
+  <div class="grid g5" style="margin-bottom:16px">
+    ${k.map(x=>`<div class="card kpi"><div class="l">${x.l}</div><div class="v">${x.v}${x.u}</div>
+      <div class="bar"><i style="width:${Math.min(100,x.v/x.m*100)}%;background:${x.v>=x.m?"var(--green)":"var(--amber)"}"></i></div>
+      <div class="m">${x.f} · Meta ${x.m===100?"":"≥ "}${x.m}% ${x.v>=x.m?'<span class="ok">✓</span>':'<span class="warn">en curso</span>'}</div></div>`).join("")}
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="flex"><h2 style="margin:0">Reto actual</h2><span class="pill p-or right">15 min · Trimestre 1</span></div>
+      <h3 style="margin-top:10px">Reto 01: Detectives del riesgo</h3>
+      <p class="hint" style="margin:0 0 10px">Recorre tu ruta entre clases, identifica 2 puntos de riesgo y repórtalos por QR.</p>
+      <div class="bar"><i style="width:${U().reto.filter(Boolean).length*25}%;background:var(--accent)"></i></div>
+      <p class="hint">${U().reto.filter(Boolean).length} de 4 pasos completados</p>
+      <a class="btn" href="#reto" style="text-decoration:none;display:inline-block">Ir al reto</a>
+    </div>
+    <div class="card">
+      <h2>Semáforo del colegio</h2>
+      <div class="grid g3" style="grid-template-columns:repeat(3,1fr);gap:10px">
+        ${["rojo","amarillo","verde"].map(c=>`<div style="background:${COLOR[c].bg};border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:26px;font-weight:900;color:${COLOR[c].c}">${counts[c]}</div><div style="font-weight:800;font-size:13px">${COLOR[c].n}</div></div>`).join("")}
       </div>
-    </article>
-    
+      <p class="hint">Colores fijos por tipo de zona: escaleras, rampas y pasillos.</p>
+      <a class="btn ghost" href="#mapa" style="text-decoration:none;display:inline-block">Ver mapa</a>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Progreso por área</h2>
+    ${S.areas.map(x=>{const p=pct(x.part,x.total);return `<div style="margin-bottom:10px"><div class="flex" style="font-size:14px"><b>${x.name}</b>
+      ${p>=70?'<span class="badge">≥ 70% · Reconocimiento público</span>':''}<span class="right hint">${x.part}/${x.total} docentes · ${p}%</span></div>
+      <div class="bar"><i style="width:${p}%;background:${p>=70?"var(--green)":"var(--amber)"}"></i></div></div>`}).join("")}
+  </div>`;
+}
 
-    <section class="send-strip" aria-label="Enviar texto">
-      <form id="send-form" class="send-form">
-        <label class="visually-hidden" for="input-text">Texto para enviar</label>
-        <textarea id="input-text" class="send-field" name="text" rows="1" wrap="off" maxlength="20000" placeholder="Pega tu texto aquí…" aria-label="Pega o escribe el texto que quieres enviar" required></textarea>
-        <button id="send-button" class="send-button" type="submit">Enviar</button>
-        <div class="honeypot" aria-hidden="true">
-          <label for="website">No rellenar</label>
-          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
-        </div>
-      </form>
-      <p id="send-status" class="status" role="status" aria-live="polite"></p>
-    </section>
-
-    <section class="links-area" aria-label="Copiar archivos">
-      <button id="links-toggle" class="links-toggle" type="button" aria-expanded="false" aria-controls="links-panel">
-        Links <span id="links-chevron" aria-hidden="true">⌄</span>
-      </button>
-      <div id="links-panel" class="links-panel" hidden>
-        <div class="copy-item">
-          <span id="time-ino" class="last-updated">Última actualización: consultando…</span>
-          <button id="copy-ino" class="file-chip" type="button" disabled>.ino</button>
-        </div>
-        <div class="copy-item">
-          <span id="time-json" class="last-updated">Última actualización: consultando…</span>
-          <button id="copy-json" class="file-chip" type="button" disabled>.json</button>
-        </div>
-        <div class="copy-item">
-          <span id="time-extra" class="last-updated">Última actualización: consultando…</span>
-          <button id="copy-extra" class="file-chip" type="button" disabled>.txt</button>
-        </div>
-        <p id="links-status" class="links-status" role="status" aria-live="polite"></p>
-        <button id="refresh-button" class="refresh-button" type="button">Actualizar horas</button>
+function vReto(){
+  const steps=[
+    ["Recorre tu ruta","Haz tu recorrido habitual entre dos clases, con atención y sin celular."],
+    ["Identifica 2 puntos","Observa escaleras, rampas, pisos y pasamanos. Compara con el color del semáforo."],
+    ["Reporta por QR","Escanea el QR del punto y envía tu reporte (puedes reservar tu nombre)."],
+    ["Propón una mejora","¿Qué cambiarías para que ese punto sea más seguro? Una idea concreta."]
+  ];
+  const n=U().reto.filter(Boolean).length;
+  return `<h1>Reto 01: Detectives del riesgo</h1>
+  <p class="sub">Duración máxima: 15 minutos · Trimestre 1 · Hay un reto por trimestre (3 en el año). Completar el reto suma <b>+1</b> punto (cumplimiento) y cada reporte suma lo suyo.</p>
+  <div class="grid g2">
+    <div class="card"><h2>Pasos del reto</h2>
+      ${steps.map((s,i)=>`<label class="check" style="font-weight:400;margin:8px 0 0"><input type="checkbox" data-step="${i}" ${U().reto[i]?"checked":""} ${U().retoDone?"disabled":""}>
+        <div><b>${i+1}. ${s[0]}</b><div class="hint">${s[1]}</div></div></label>`).join("")}
+      <div class="flex" style="margin-top:14px">
+        ${U().retoDone?"":`<input class="f" id="rtName" placeholder="Tu nombre completo" style="max-width:260px">`}
+        <button class="btn or" id="retoBtn" ${n<4||U().retoDone?"disabled":""}>${U().retoDone?"Reto completado ✓":"Completar reto (+1)"}</button>
+        <a href="#reportar" class="btn ghost" style="text-decoration:none">Ir a reportar</a>
       </div>
-    </section>
+    </div>
+    <div class="card"><h2>¿Por qué este reto?</h2>
+      <p>Lo prescrito dice «camina sin prisa». El trabajo real es llegar a tiempo, con carga y entre estudiantes. Tú conoces esa ruta mejor que nadie.</p>
+      <p>Con este reto pasas de <b>recibir instrucciones</b> a <b>gestionar tu propia seguridad</b>.</p>
+      <h3 style="margin-top:14px">Retos del año</h3>
+      <table><tr><td><span class="pill p-or">Trimestre 1</span></td><td><b>Reto 01:</b> Detectives del riesgo <span class="badge">Actual</span></td></tr>
+      <tr><td><span class="pill p-gray">Trimestre 2</span></td><td><b>Reto 02:</b> Manos libres: cero celular en escaleras</td></tr>
+      <tr><td><span class="pill p-gray">Trimestre 3</span></td><td><b>Reto 03:</b> Carga inteligente: menos peso entre bloques</td></tr></table>
+    </div>
+  </div>`;
+}
 
-    <footer>Los envíos y archivos son públicos. No incluyas contraseñas ni información privada.</footer>
-  </main>
-  <script src="config.js?v=20261015-esp32-article-1"></script>
-  <script src="app.js?v=20261015-esp32-article-1"></script>
+function vReportar(pre){
+  return `<h1>Reportar</h1>
+  <p class="sub">Tu reporte entra al ciclo: <b>Recibido → En revisión → En corrección → Cerrado</b>. Siempre recibes respuesta.</p>
+  <div class="grid g2">
+  <form class="card" id="repForm">
+    <label>1. ¿Qué quieres reportar?</label>
+    <div class="types">${TYPES.map((t,i)=>`<div class="type ${i===0?"on":""}" data-type="${t.id}"><div><b>${t.name}</b><small>${t.d}</small></div><b class="pt">+${t.pts}</b></div>`).join("")}</div>
+    <label for="rpPoint">2. ¿Dónde?</label>
+    <select class="f" id="rpPoint">${S.points.map(p=>`<option value="${p.id}" ${p.id===pre?"selected":""}>${p.id} · ${p.name} (${COLOR[p.z].zone} · ${COLOR[p.z].n})</option>`).join("")}</select>
+    <label for="rpName">3. Nombre completo del docente <span style="color:var(--red)">*</span></label>
+    <input class="f" id="rpName" placeholder="Nombres y apellidos" autocomplete="off">
+    <label for="rpDesc">4. Describe lo que viste o propones</label>
+    <textarea class="f" id="rpDesc" placeholder="Ej.: El peldaño 3 está suelto y no hay pasamanos del lado derecho."></textarea>
+    <label class="check" style="font-weight:400"><input type="checkbox" id="rpAnon"><div><b>No mostrar mi nombre</b><div class="hint">Tu nombre queda registrado solo para SST y no aparece en el seguimiento. Aquí no se buscan culpables.</div></div></label>
+    <label class="check crit" style="font-weight:400"><input type="checkbox" id="rpCrit"><div><b>⛔ Riesgo crítico: solicitar zona bloqueada</b><div class="hint">Úsalo si alguien puede caer ya. SST responde en máximo 24 horas.</div></div></label>
+    <div style="margin-top:14px"><button class="btn or" type="submit">Enviar reporte</button></div>
+  </form>
+  <div class="card"><h2>Cómo se cierra tu reporte</h2>
+    <table>
+      <tr><td><span class="pill p-blue">Recibido</span></td><td>Acuse inmediato con número de folio.</td></tr>
+      <tr><td><span class="pill p-amber">En revisión</span></td><td>SST verifica en sitio. Respuesta al docente en ≤ 5 días hábiles.</td></tr>
+      <tr><td><span class="pill p-or">En corrección</span></td><td>Mantenimiento ejecuta. Zonas rojas: máximo 30 días.</td></tr>
+      <tr><td><span class="pill p-green">Cerrado</span></td><td>Te contamos qué se hizo. Si tu idea se implementa: <b>+10</b> y autoría visible.</td></tr>
+    </table>
+    <p class="hint" style="margin-top:12px">Un canal sin respuesta enseña silencio. Un canal con trazabilidad genera confianza para participar.</p>
+  </div></div>`;
+}
+
+function mapSVG(sel){
+  const B=(x,y,w,h,t,f="#e9eef6")=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${f}" stroke="#c8d1df"/><text x="${x+w/2}" y="${y+22}" text-anchor="middle" font-size="13" font-weight="800" fill="#6b7689">${t}</text>`;
+  return `<svg class="map" viewBox="0 0 800 500" role="img" aria-label="Plano del colegio con el semáforo de riesgo">
+    ${B(20,40,200,130,"Bloque A · Primaria")}
+    ${B(240,60,130,110,"Biblioteca")}
+    ${B(400,40,240,140,"Bloque B · Secundaria")}
+    ${B(660,40,120,230,"Bloque C · Labs")}
+    ${B(300,210,150,70,"Sala de profesores","#fff2e3")}
+    ${B(20,390,180,90,"Administración")}
+    ${B(20,300,100,70,"Parqueadero","#f1f3f6")}
+    ${B(220,400,140,80,"Cafetería")}
+    ${B(320,300,200,80,"Patio central","#eef7ee")}
+    ${B(600,350,180,130,"Coliseo")}
+    <path d="M140 200 L140 250 L470 250 L470 180" fill="none" stroke="#d5dbe5" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 14"/>
+    ${S.points.map(p=>{const c=COLOR[p.z];const bl=S.blocked[p.id];return `<g class="dot" data-pt="${p.id}">
+      ${p.z==="rojo"||bl?`<circle class="pulse" cx="${p.x}" cy="${p.y}" r="13" fill="${c.hex}"/>`:""}
+      <circle class="c" cx="${p.x}" cy="${p.y}" r="${p.id===sel?17:14}" fill="${c.hex}" stroke="${p.id===sel?"#12305a":"#fff"}" stroke-width="3"/>
+      <text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="9" font-weight="900" fill="#fff">${p.id.replace("-","")}</text>
+      ${bl?`<text x="${p.x+14}" y="${p.y-12}" font-size="14">⛔</text>`:""}</g>`}).join("")}
+  </svg>`;
+}
+let selPt="E-01";
+function vMapa(){
+  const p=point(selPt), c=COLOR[p.z];
+  const reps=S.reports.filter(r=>r.point===p.id), open=reps.filter(r=>r.status<3).length;
+  return `<h1>Semáforo de la seguridad</h1>
+  <p class="sub">El color indica el nivel de riesgo de cada tipo de zona y no cambia con los reportes. Escaleras en rojo, rampas en amarillo y pasillos en verde: así el docente sabe dónde debe extremar el cuidado. Toca un punto para ver su ficha.</p>
+  <div class="mapwrap">
+    <div class="card" style="padding:12px">${mapSVG(selPt)}
+      <div class="flex hint" style="margin-top:8px"><span class="pill p-red">● Rojo · Escaleras (E)</span><span class="pill p-amber">● Amarillo · Rampas (R)</span><span class="pill p-green">● Verde · Pasillos (P)</span><span>⛔ Zona bloqueada por reporte crítico</span></div>
+    </div>
+    <div class="card" style="border-top:6px solid ${c.hex}">
+      <div class="flex"><span class="pill ${c.cls}">${c.n} · ${c.zone}</span><span class="right hint">${c.risk}</span></div>
+      <h2 style="margin:10px 0 8px">${p.id} · ${p.name}</h2>
+      <div style="background:${c.hex};color:#fff;border-radius:10px;padding:12px 14px;font-weight:900;font-size:17px;line-height:1.25">${c.msg}</div>
+      ${S.blocked[p.id]?`<div class="resp" style="border-color:var(--red);background:#fff4f4">⛔ Zona bloqueada por reporte crítico. SST atiende en ≤ 24 h.</div>`:""}
+      <div style="margin-top:14px"><h3>👩‍🏫 Qué hace el docente</h3><p style="margin:0 0 10px">${c.doc}</p>
+      <h3>🏫 Qué hace el colegio</h3><p style="margin:0 0 10px">${c.col}</p>
+      <h3>🟧 Refuerzo en piso</h3><p style="margin:0 0 10px">${c.floor}</p>
+      <h3>📋 Reportes en este punto</h3><p class="hint" style="margin:0">${reps.length} reporte${reps.length===1?"":"s"} · ${open} abierto${open===1?"":"s"}. Los reportes activan correcciones, pero el color de la zona se mantiene.</p></div>
+      <a class="btn or" href="#reportar-${hid(p.id)}" style="text-decoration:none;display:inline-block;margin-top:14px">Reportar en este punto</a>
+    </div>
+  </div>
+  <div style="margin-top:16px">
+    <div class="card"><h2>Colores, zonas y conductas</h2><div class="legend">
+      ${Object.values(COLOR).map(c=>`<div class="lg" style="background:${c.bg}"><span class="sw" style="background:${c.hex}"></span><div><b>${c.n} · ${c.zone} · ${c.risk}</b>
+        <div style="font-size:13px;font-weight:800;margin:2px 0">«${c.msg}»</div><div style="font-size:13px">Docente: ${c.doc}<br>Colegio: ${c.col}</div></div></div>`).join("")}
+      </div></div>
+  </div>`;
+}
+
+function vSeguimiento(){
+  const mine=S.reports.filter(r=>r.by===S.me), others=S.reports.filter(r=>r.by!==S.me);
+  const card=r=>{const t=typ(r.type),p=point(r.point),a=area(r.area);return `<div class="rep">
+    <div class="flex"><b>${r.id}</b><span class="pill p-or">${t.name} · +${t.pts}</span>${r.crit?'<span class="pill p-red">⛔ Crítico</span>':""}
+    <span class="right meta">${p.id} · ${p.name}</span></div>
+    <p style="margin:8px 0 4px">${r.desc}</p>
+    <div class="meta">${r.anon?"Nombre reservado (solo SST)":r.name?"Reportado por "+r.name:"Reportado por un docente"} · Área de ${a.name}</div>
+    <div class="steps">${STATUS.map((s,i)=>`<span class="${i<r.status||r.status===3?"done":i===r.status?"cur":""}">${s}</span>`).join("")}</div>
+    ${r.resp?`<div class="resp"><b>Respuesta de SST${r.days!==null?` (día ${r.days})`:""}:</b> ${r.resp}</div>`:`<div class="hint">Acuse recibido. SST responde en ≤ 5 días hábiles.</div>`}
+    ${r.status<3?`<div style="margin-top:8px"><button class="btn ghost sm" data-adv="${r.id}">Simular respuesta de SST → ${STATUS[r.status+1]}</button></div>`:""}
+  </div>`};
+  return `<h1>Seguimiento de reportes</h1>
+  <p class="sub">Cada reporte tiene trazabilidad y respuesta. Así el docente sabe que su voz cambia decisiones.</p>
+  <div class="grid g2"><div><h2>Mis reportes</h2>${mine.length?mine.map(card).join(""):`<div class="card hint">Aún no tienes reportes. <a href="#reportar">Haz el primero</a>.</div>`}</div>
+  <div><h2>Reportes del colegio</h2>${others.map(card).join("")}</div></div>`;
+}
+
+function vPuntos(){
+  const lv=[["Completar el reto del trimestre","+1"],["Reportar condición insegura","+2"],["Identificar superficie peligrosa","+3"],
+    ["Reportar caída o casi-caída propia","+3"],["Reportar situación de riesgo observada (sin nombres)","+5"],
+    ["Proponer una mejora","+7"],["Mejora implementada por el colegio","+10"]];
+  return `<h1>Puntos</h1><p class="sub">Se premian conductas que aumentan la capacidad preventiva. <b>Nunca</b> se premia «cero caídas»: eso genera silencio y subregistro.</p>
+  <div class="grid g2"><div class="card"><h2>Tabla de puntos</h2>
+    <table><tr><th>Conducta</th><th>Puntos</th></tr>${lv.map(r=>`<tr><td>${r[0]}</td><td><b style="color:var(--accent)">${r[1]}</b></td></tr>`).join("")}</table></div>
+  <div class="card"><h2>Mi historial · ${U().myPts} pts</h2>
+    ${U().hist.length?`<table>${U().hist.map(h=>`<tr><td>${h.why}</td><td style="text-align:right"><b style="color:var(--accent)">+${h.n}</b></td></tr>`).join("")}</table>`:`<p class="hint">Aún no sumas puntos. Empieza por el <a href="#reto">Reto 01</a>.</p>`}
+    <h3 style="margin-top:16px">Reglas</h3>
+    <ul style="margin:0;padding-left:18px;font-size:14px"><li>Tus puntos suman al promedio de tu área.</li><li>Los reportes con nombre reservado también suman.</li><li>Los puntos nunca se restan por una caída.</li><li>Los puntos se reinician cada trimestre.</li></ul></div></div>`;
+}
+
+function ranked(){
+  return S.areas.map(a=>({...a,p:pct(a.part,a.total),avg:a.pts/a.total})).sort((x,y)=>{
+    const ex=x.p>=70,ey=y.p>=70; if(ex!==ey)return ey-ex; if(y.avg!==x.avg)return y.avg-x.avg; return y.closed-x.closed;});
+}
+function vRanking(){
+  const R=ranked(); let pos=0;
+  const prize=["Día de pasadía (mejor docente)","Cena grupal del área"];
+  return `<h1>Ranking por áreas · Trimestre 1</h1>
+  <p class="sub">Se ordena por <b>puntos promedio por docente</b> (puntos del área ÷ docentes del área). Para entrar, el área necesita <b>≥ 70%</b> de participación. Desempate: más reportes cerrados.</p>
+  <div class="card"><table>
+    <tr><th>Puesto</th><th>Área</th><th>Participación</th><th>Puntos totales</th><th>Promedio / docente</th><th>Reportes cerrados</th><th>Premio</th></tr>
+    ${R.map(a=>{const el=a.p>=70;if(el)pos++;const ps=el?pos:null;return `<tr class="${a.id===S.area?"me":""}">
+      <td>${ps?`<span class="pos ${ps<=2?"m"+ps:""}">${ps}</span>`:'<span class="pill p-gray">No clasifica</span>'}</td>
+      <td><b>${a.name}</b>${a.id===S.area?' <span class="pill p-or">Tu área</span>':""}</td>
+      <td>${a.p}% ${el?'<span class="badge">✓</span>':'<span class="warn">&lt; 70%</span>'}</td>
+      <td>${a.pts}</td><td><b>${a.avg.toFixed(1)}</b></td><td>${a.closed}</td>
+      <td>${ps&&ps<=2?prize[ps-1]:el?"Reconocimiento público":"—"}</td></tr>`}).join("")}
+  </table>
+  <p class="hint" style="margin-top:10px">Toda área con ≥ 70% de participación recibe reconocimiento público en la sala de profesores. El ranking se reinicia cada trimestre.</p></div>
+  ${(()=>{const w=R.find(a=>a.p>=70);if(!w)return "";const ppl=Object.values((S.people||{})[w.id]||{}).sort((a,b)=>b.pts-a.pts).slice(0,3);
+    return `<div class="card" style="margin-top:16px;border-top:6px solid #e0a800"><div class="flex"><h2 style="margin:0">🥇 Día de pasadía familiar</h2><span class="pill p-gray right">Área líder: ${w.name}</span></div>
+    <p class="hint">Lo gana el docente con más puntos del área en primer lugar. En empate, gana quien tenga más reportes cerrados.</p>
+    <table><tr><th>Docente</th><th>Puntos</th><th></th></tr>${ppl.map((x,i)=>`<tr><td><b>${x.name}</b></td><td>${x.pts}</td><td>${i===0?'<span class="pill p-or">Va ganando</span>':""}</td></tr>`).join("")}</table></div>`;})()}
+  <div class="card" style="margin-top:16px;background:#fff7ef;border-color:#ffd9b8"><h3>¿Por qué no premiamos «cero caídas»?</h3>
+  <p style="margin:0">Premiar al área con menos accidentes enseña a callar. Aquí se premia reportar, proponer y cuidar a otros. Por eso <b>más reportes no significan más inseguridad</b>: significan más confianza para hablar.</p></div>`;
+}
+
+function vRecompensas(){
+  return `<h1>Recompensas</h1><p class="sub">Reconocimiento por conductas preventivas, al cierre de cada trimestre.</p>
+  <div class="grid g3">
+    <div class="card prize" style="border-top:6px solid #e0a800"><div class="ico">🥇</div><div class="lvl">1.er puesto · mejor docente del área</div><h3>Día de pasadía familiar</h3><p class="hint">Para el docente con más puntos del área en primer lugar, con su familia, en la caja de compensación.</p></div>
+    <div class="card prize" style="border-top:6px solid #8f9bab"><div class="ico">🥈</div><div class="lvl">2.º puesto · toda el área</div><h3>Cena grupal del área</h3><p class="hint">Un espacio para celebrar en equipo.</p></div>
+    <div class="card prize" style="border-top:6px solid var(--green)"><div class="ico">📣</div><div class="lvl">Toda área con ≥ 70% de participación</div><h3>Reconocimiento público</h3><p class="hint">En la sala de profesores y en la reunión general.</p></div>
+  </div>`;
+}
+
+function vMejoras(){
+  return `<h1>Muro de mejoras</h1><p class="sub">Ideas de docentes que ya cambiaron el colegio. Cuando tu idea se implementa, suma <b>+10</b> y lleva tu autoría.</p>
+  <div class="wall">${S.mejoras.map(m=>`<div class="note"><b>💡 ${m.t}</b><div class="hint" style="margin-top:6px">${m.fx}</div><div class="by">Propuesta por: ${m.by}</div></div>`).join("")}</div>
+  <div style="margin-top:16px"><a href="#reportar" class="btn or" style="text-decoration:none">Proponer una mejora (+7)</a></div>`;
+}
+
+function qrSVG(text){
+  try{const q=qrcode(0,"M");q.addData(text);q.make();return q.createSvgTag({cellSize:3,margin:2,scalable:true});}
+  catch(e){return `<div class="hint" style="padding:30px 0">QR no disponible</div>`;}
+}
+function vQR(){
+  const ok=BASE_URL.startsWith("http");
+  return `<h1>Accesos QR</h1><p class="sub">Cada punto crítico tiene su QR. Al escanearlo, el docente abre el formulario con la ubicación ya cargada. Se imprimen y laminan (15 × COP 20.000).</p>
+  <div class="card" style="margin-bottom:16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+    <div class="q" style="width:130px">${ok?qrSVG(BASE_URL):""}</div>
+    <div><h3>QR general de la plataforma</h3><p class="hint" style="margin:0">Para el tablero de la sala de profesores y la cartelera.</p></div></div>
+  <div class="qrgrid">${S.points.map(p=>{const c=COLOR[p.z];return `<div class="qrc"><div class="bandc" style="background:${c.hex}"></div>
+    <div class="q">${ok?qrSVG(BASE_URL+"#reportar-"+hid(p.id)):""}</div>
+    <b>${p.id} · ${p.name}</b><div style="color:${c.c};font-weight:800">${c.n}: ${c.doc}</div>
+    <a href="#reportar-${hid(p.id)}">Probar enlace</a></div>`}).join("")}</div>`;
+}
+
+function vLogin(){
+  const c=current(), dest=c.pt?`Al ingresar irás directo a reportar en ${c.pt} · ${point(c.pt).name}.`:"";
+  return `<div class="login">
+    <div class="hero">
+      <div style="font-size:13px;font-weight:800;letter-spacing:.5px;opacity:.8">ACCESO EXCLUSIVO PARA PERSONAL</div>
+      <h1>Ruta Segura Altamira</h1>
+      <p style="opacity:.9">Plataforma de reporte y prevención de caídas para docentes y personal del colegio.</p>
+    </div>
+    <form class="card" id="loginForm" autocomplete="off">
+      <h2>Iniciar sesión</h2>
+      ${dest?`<div class="resp" style="margin-bottom:6px">📍 ${dest}</div>`:""}
+      <label for="lgCode">Usuario del área</label>
+      <input class="f" id="lgCode" placeholder="Ej.: ciencias" maxlength="40" autocapitalize="none">
+      <label for="lgPin">PIN</label>
+      <input class="f" id="lgPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+      <div class="err" id="lgErr"></div>
+      <button class="btn or" type="submit" style="width:100%;margin-top:6px">Ingresar</button>
+      <p class="hint" style="margin-top:12px">¿No tienes el usuario o el PIN de tu área? Pídelo a tu coordinador de área o a SST.</p>
+      <div class="demo"><b>Cuentas de demostración</b> (prototipo):<br>
+        ${ACCOUNTS.map(a=>`<button type="button" data-demo="${a.code}">${a.code} · PIN ${a.pin}</button>`).join("")}
+      </div>
+    </form>
+  </div>`;
+}
+function bindLogin(){
+  document.querySelectorAll("[data-demo]").forEach(b=>b.onclick=()=>{const a=acc(b.dataset.demo);$("#lgCode").value=a.code;$("#lgPin").value=a.pin;});
+  $("#loginForm").onsubmit=e=>{
+    e.preventDefault();
+    const err=$("#lgErr"), now=Date.now();
+    if(now<lockUntil){err.textContent=`Demasiados intentos. Espera ${Math.ceil((lockUntil-now)/1000)} s.`;return;}
+    const code=$("#lgCode").value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""), pin=$("#lgPin").value.trim(), a=acc(code);
+    if(/@/.test(code)){err.textContent="Usa el usuario de tu área, no el correo institucional.";return;}
+    if(!a||a.pin!==pin){fails++;
+      if(fails>=3){lockUntil=now+30000;fails=0;err.textContent="Usuario o PIN incorrectos. Acceso bloqueado 30 s.";}
+      else err.textContent=`Usuario o PIN incorrectos. Intento ${fails} de 3.`;
+      return;}
+    fails=0;S.me=a.code;S.area=a.area;U();save();
+    toast(`Bienvenidos, área de ${area(a.area).name}.`);render();
+  };
+}
+
+/* ===================== RUTEO ===================== */
+function current(){
+  const h=(location.hash||"#inicio").slice(1);
+  const m=h.match(/^reportar-([erp]\d\d)$/);
+  if(m)return {base:"reportar",pt:m[1][0].toUpperCase()+"-"+m[1].slice(1)};
+  return {base:ROUTES.some(r=>r[0]===h)?h:"inicio"};
+}
+function render(){
+  renderHeader();
+  const c=current(), v=$("#view");
+  if(!S.me||!acc(S.me)){S.me=null;v.innerHTML=vLogin()+`<div class="foot">Prototipo académico · Ruta Segura Altamira · Cultura de Seguridad y Talento Humano (CUC)</div>`;bindLogin();return;}
+  const map={inicio:vInicio,reto:vReto,reportar:()=>vReportar(c.pt),mapa:vMapa,seguimiento:vSeguimiento,puntos:vPuntos,ranking:vRanking,recompensas:vRecompensas,mejoras:vMejoras,qr:vQR};
+  v.innerHTML=map[c.base]()+`<div class="foot">Prototipo académico · Ruta Segura Altamira · Cultura de Seguridad y Talento Humano (CUC) · Datos de demostración
+   · <a href="#" id="reset">Reiniciar demo</a></div>`;
+  bind(c);
+}
+window.addEventListener("hashchange",()=>{render();window.scrollTo(0,0);});
+
+/* ===================== EVENTOS ===================== */
+function bind(c){
+  const rs=$("#reset");
+  rs.onclick=e=>{e.preventDefault();if(rs.dataset.arm){S=fresh();save();toast("Demo reiniciada.");render();}else{rs.dataset.arm=1;rs.textContent="¿Seguro? Toca otra vez para reiniciar";}};
+  if(c.base==="reto"){
+    document.querySelectorAll("[data-step]").forEach(cb=>cb.onchange=()=>{U().reto[+cb.dataset.step]=cb.checked;save();render();});
+    const b=$("#retoBtn"); if(b)b.onclick=()=>{const nm=$("#rtName").value.trim().replace(/\s+/g," ");if(!validName(nm)){toast("Escribe tu nombre completo: nombres y apellidos.");$("#rtName").focus();return;}U().retoDone=true;addPts(1,"Reto 01 completado",nm);toast("¡Reto completado! +1 punto para "+area(S.area).name);render();};
+  }
+  if(c.base==="reportar"){
+    let tsel="cond";
+    document.querySelectorAll(".type").forEach(el=>el.onclick=()=>{document.querySelectorAll(".type").forEach(x=>x.classList.remove("on"));el.classList.add("on");tsel=el.dataset.type;});
+    $("#repForm").onsubmit=e=>{
+      e.preventDefault();
+      const name=$("#rpName").value.trim().replace(/\s+/g," ");
+      if(!validName(name)){toast("Escribe tu nombre completo: nombres y apellidos.");$("#rpName").focus();return;}
+      const desc=$("#rpDesc").value.trim();
+      if(desc.length<8){toast("Describe un poco más lo que viste (mínimo 8 caracteres).");$("#rpDesc").focus();return;}
+      const t=typ(tsel), id="R-"+String(S.seq++).padStart(3,"0"), crit=$("#rpCrit").checked, pt=$("#rpPoint").value;
+      S.reports.unshift({id,type:tsel,point:pt,area:S.area,anon:$("#rpAnon").checked,name,desc,status:0,resp:"",days:null,by:S.me,crit});
+      if(crit)S.blocked[pt]=true;
+      const key=name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""), ar=area(S.area);
+      S.names=S.names||{}; S.names[S.area]=S.names[S.area]||[];
+      if(!S.names[S.area].includes(key)&&!((S.people||{})[S.area]||{})[nkey(name)]){S.names[S.area].push(key); if(ar.part<ar.total)ar.part++;}
+      addPts(t.pts,`${t.name} (${id})`,name);
+      toast(`Reporte ${id} recibido. +${t.pts} puntos. Te avisaremos cada avance.`);
+      location.hash="#seguimiento";
+    };
+  }
+  if(c.base==="mapa"){
+    document.querySelectorAll("[data-pt]").forEach(g=>g.onclick=()=>{selPt=g.dataset.pt;render();});
+  }
+  if(c.base==="seguimiento"){
+    document.querySelectorAll("[data-adv]").forEach(b=>b.onclick=()=>{
+      const r=S.reports.find(x=>x.id===b.dataset.adv); r.status++;
+      const msgs=["","SST recibió tu reporte y hará verificación en sitio esta semana.","Verificado. Mantenimiento programó la corrección.","Corrección terminada y verificada por SST. ¡Gracias por reportar!"];
+      if(r.days===null)r.days=2; r.resp=msgs[r.status];
+      if(r.status===3){
+        area(r.area).closed++;
+        if(S.blocked[r.point])delete S.blocked[r.point];
+        if(r.type==="mej"){
+          r.resp="Tu propuesta fue aprobada e implementada. Ya aparece en el Muro de mejoras con tu autoría.";
+          S.mejoras.unshift({t:r.desc,by:r.anon?"Docente (nombre reservado) · Área de "+area(r.area).name:"Área de "+area(r.area).name,fx:"Implementada en "+point(r.point).name+"."});
+          if(r.by===S.me)addPts(10,`Mejora implementada (${r.id})`,r.name);
+          toast("Mejora implementada: +10 puntos y autoría visible.");
+        } else toast(`Reporte ${r.id} cerrado. El ciclo de la voz se completó.`);
+      }
+      save();render();
+    });
+  }
+}
+render();
+</script>
 </body>
 </html>
